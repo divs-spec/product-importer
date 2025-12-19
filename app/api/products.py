@@ -1,24 +1,14 @@
-from fastapi import APIRouter, Depends, Query, HTTPException
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
-from ..database import SessionLocal
+from ..db import get_db
 from ..models import Product
 from ..schemas import ProductOut, ProductCreate
 
 router = APIRouter(prefix="/products")
 
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-
 @router.get("", response_model=list[ProductOut])
 def list_products(db: Session = Depends(get_db)):
     return db.query(Product).limit(50).all()
-
 
 @router.post("", response_model=ProductOut)
 def create_product(data: ProductCreate, db: Session = Depends(get_db)):
@@ -28,25 +18,13 @@ def create_product(data: ProductCreate, db: Session = Depends(get_db)):
     db.refresh(product)
     return product
 
-
-# ----------------------------
-# BULK DELETE (ADD THIS BELOW)
-# ----------------------------
 @router.delete("/bulk")
-def bulk_delete(
+def bulk_delete_products(
     confirm: bool = Query(False),
     db: Session = Depends(get_db)
 ):
     if not confirm:
-        raise HTTPException(
-            status_code=400,
-            detail="Confirmation required to delete all products"
-        )
-
+        return {"error": "Confirmation required"}
     db.query(Product).delete()
     db.commit()
-
-    return {
-        "status": "success",
-        "message": "All products deleted"
-    }
+    return {"status": "all products deleted"}
