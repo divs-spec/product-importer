@@ -4,8 +4,6 @@ from fastapi.templating import Jinja2Templates
 from .database import Base, engine
 from .api import products, upload, jobs, webhooks
 
-Base.metadata.create_all(bind=engine)
-
 app = FastAPI()
 
 app.include_router(products.router)
