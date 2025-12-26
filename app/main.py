@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from mangum import Mangum
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from .database import Base, engine
@@ -7,6 +8,7 @@ from .api import products, upload, jobs, webhooks
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
+handler = Mangum(app)
 
 app.include_router(products.router)
 app.include_router(upload.router)
