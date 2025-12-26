@@ -41,7 +41,7 @@ class ImportJobOut(BaseModel):
 
 # ---------- Webhooks ----------
 
-class WebhookBase(BaseModel):
+class WebhookCreate(BaseModel):
     url: str
     event: str
     enabled: bool = True
