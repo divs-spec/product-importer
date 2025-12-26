@@ -1,16 +1,21 @@
-import uuid
-from fastapi import APIRouter, UploadFile, File, Depends
+from fastapi import APIRouter, Depends
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from ..db import get_db
 from ..models import ImportJob
+from ..workers.importer import import_products
 
 router = APIRouter(prefix="/upload")
 
 
+class CSVImportRequest(BaseModel):
+    file_url: str
+
+
 @router.post("")
 def upload_csv(
-    file: UploadFile = File(...),
+    payload: CSVImportRequest,
     db: Session = Depends(get_db)
 ):
     job = ImportJob(status="pending")
@@ -18,10 +23,8 @@ def upload_csv(
     db.commit()
     db.refresh(job)
 
-    # IMPORTANT:
-    # Do NOT process CSV here.
-    # Vercel is API-only.
-    # Worker on Railway will pick this job.
+    # Send job to Celery (Railway)
+    import_products.delay(job.id, payload.file_url)
 
     return {
         "job_id": job.id,
