@@ -1,20 +1,35 @@
 async function upload() {
-  const file = document.getElementById("file").files[0];
   const status = document.getElementById("status");
+  const fileUrl = document.getElementById("file_url").value;
 
-  const form = new FormData();
-  form.append("file", file);
+  if (!fileUrl) {
+    status.innerText = "Please provide a CSV URL.";
+    return;
+  }
 
-  // Start upload
+  status.innerText = "Queuing import...";
+
   const res = await fetch("/upload", {
     method: "POST",
-    body: form,
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      file_url: fileUrl,
+    }),
   });
+
+  if (!res.ok) {
+    status.innerText = "Failed to queue job.";
+    return;
+  }
 
   const { job_id } = await res.json();
 
+  status.innerText = "Import started...";
+
   // ----------------------------
-  // REPLACE POLLING WITH SSE
+  // SSE: Job progress
   // ----------------------------
   const es = new EventSource(`/jobs/${job_id}/events`);
 
