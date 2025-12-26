@@ -6,6 +6,10 @@ from .api import products, upload, jobs, webhooks
 
 app = FastAPI()
 
+@app.on_event("startup")
+def create_tables():
+    Base.metadata.create_all(bind=engine)
+
 app.include_router(products.router)
 app.include_router(upload.router)
 app.include_router(jobs.router)
