@@ -1,6 +1,9 @@
-async function upload() {
+async function upload(event) {
+  if (event) event.preventDefault();
+
   const status = document.getElementById("status");
-  const fileUrl = document.getElementById("file_url").value;
+  const input = document.getElementById("file_url");
+  const fileUrl = input.value.trim();
 
   if (!fileUrl) {
     status.innerText = "Please provide a CSV URL.";
@@ -11,12 +14,8 @@ async function upload() {
 
   const res = await fetch("/upload", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      file_url: fileUrl,
-    }),
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ file_url: fileUrl }),
   });
 
   if (!res.ok) {
@@ -25,12 +24,8 @@ async function upload() {
   }
 
   const { job_id } = await res.json();
-
   status.innerText = "Import started...";
 
-  // ----------------------------
-  // SSE: Job progress
-  // ----------------------------
   const es = new EventSource(`/jobs/${job_id}/events`);
 
   es.onmessage = (e) => {
