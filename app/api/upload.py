@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from ..db import get_db
 from ..models import ImportJob
 
-router = APIRouter(prefix="/upload")
+router = APIRouter(prefix="/upload", tags=["Upload"])
 
 
 class CSVImportRequest(BaseModel):
@@ -17,15 +17,22 @@ def upload_csv(
     payload: CSVImportRequest,
     db: Session = Depends(get_db)
 ):
-    job = ImportJob(status="pending")
+    # 1. Create import job
+    job = ImportJob(
+        status="queued",
+        total=0,
+        processed=0
+    )
+
     db.add(job)
     db.commit()
     db.refresh(job)
 
-    # Send job to Celery (Railway)
-    import_products.delay(job.id, payload.file_url)
+    # 2. DO NOT call Celery from Vercel
+    # Worker will poll for queued jobs
 
     return {
         "job_id": job.id,
+        "file_url": payload.file_url,
         "status": "queued"
     }
