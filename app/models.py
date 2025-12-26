@@ -12,7 +12,7 @@ class Product(Base):
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, onupdate=func.now())
 
-    __table_args__ = (UniqueConstraint(func.lower(sku), name="uq_sku_lower"),)
+    __table_args__ = (UniqueConstraint("sku", name="uq_sku_lower"),)
 
 
 class ImportJob(Base):
