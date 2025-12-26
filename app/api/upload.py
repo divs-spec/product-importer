@@ -4,7 +4,6 @@ from sqlalchemy.orm import Session
 
 from ..db import get_db
 from ..models import ImportJob
-from ..celery_worker import import_products
 
 router = APIRouter(prefix="/upload")
 
