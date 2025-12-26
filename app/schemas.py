@@ -46,7 +46,7 @@ class WebhookCreate(BaseModel):
     event: str
     enabled: bool = True
 
-class WebhookOut(WebhookBase):
+class WebhookOut(WebhookCreate):
     id: str
 
     class Config:
