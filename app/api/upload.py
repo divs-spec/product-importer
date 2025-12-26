@@ -1,22 +1,29 @@
-import shutil, uuid
-from fastapi import APIRouter, UploadFile
-from ..database import SessionLocal
+import uuid
+from fastapi import APIRouter, UploadFile, File, Depends
+from sqlalchemy.orm import Session
+
+from ..db import get_db
 from ..models import ImportJob
-from ..celery_worker import import_products
 
-router = APIRouter()
+router = APIRouter(prefix="/upload")
 
-@router.post("/upload")
-def upload_csv(file: UploadFile):
-    path = f"/tmp/{uuid.uuid4()}.csv"
-    with open(path, "wb") as f:
-        shutil.copyfileobj(file.file, f)
 
-    db = SessionLocal()
-    job = ImportJob()
+@router.post("")
+def upload_csv(
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db)
+):
+    job = ImportJob(status="pending")
     db.add(job)
     db.commit()
+    db.refresh(job)
 
-    import_products.delay(job.id, path)
-    return {"job_id": job.id}
+    # IMPORTANT:
+    # Do NOT process CSV here.
+    # Vercel is API-only.
+    # Worker on Railway will pick this job.
 
+    return {
+        "job_id": job.id,
+        "status": "queued"
+    }
