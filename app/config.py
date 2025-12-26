@@ -1,9 +1,10 @@
 import os
 
-DATABASE_URL = os.getenv(
-    "DATABASE_URL",
-    "postgresql+psycopg2://postgres:postgres@localhost:5432/products"
-)
+DATABASE_URL = os.environ.get("DATABASE_URL")
+REDIS_URL = os.environ.get("REDIS_URL")
 
-REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
+if not DATABASE_URL:
+    raise RuntimeError("DATABASE_URL environment variable is required")
 
+if not REDIS_URL:
+    raise RuntimeError("REDIS_URL environment variable is required")
