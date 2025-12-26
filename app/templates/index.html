@@ -4,12 +4,23 @@
   <title>Product Importer</title>
 </head>
 <body>
-<h2>Upload CSV</h2>
-<input type="file" id="file"/>
-<button onclick="upload()">Upload</button>
+
+<h2>Import Products via CSV URL</h2>
+
+<input
+  type="text"
+  id="file_url"
+  value="https://drive.google.com/uc?export=download&id=1-eMFkoamppUm0RTuGp5nnkHaBS0qCzfw"
+  style="width: 600px;"
+/>
+
+<br><br>
+
+<button onclick="upload()">Start Import</button>
+
 <div id="status"></div>
 
 <script src="/static/app.js"></script>
+
 </body>
 </html>
-
