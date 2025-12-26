@@ -5,7 +5,6 @@ from sqlalchemy.orm import Session
 from ..db import get_db
 from ..models import Webhook
 from ..schemas import WebhookCreate, WebhookOut
-from ..workers.webhooks import fire_webhook
 
 router = APIRouter(prefix="/webhooks", tags=["webhooks"])
 
